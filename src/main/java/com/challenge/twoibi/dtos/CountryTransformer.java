@@ -25,6 +25,7 @@ public class CountryTransformer {
 
     public Country toEntity(CountryDTO countryDTO) {
         Country country = new Country.Builder()
+                .id(countryDTO.getId())
                 .name(countryDTO.getName())
                 .capital(countryDTO.getCapital())
                 .region(countryDTO.getRegion())
@@ -40,7 +41,11 @@ public class CountryTransformer {
 
     private Double parseArea(String area){
         if(area==null) return 0D;
-        else return area.equals("")?0D: Double.valueOf(area);
+        String myArea=area.endsWith(" m2")?area.substring(0, area.length()-3) : area;
+        myArea=myArea.contains(",")?myArea.replace(",",""): myArea;
+        myArea=myArea.contains(".")? myArea.replace(".",""): myArea;
+
+        return myArea.matches("\\d+")?Double.valueOf(myArea):0D;
 
     }
 }

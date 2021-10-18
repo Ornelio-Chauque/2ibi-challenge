@@ -16,12 +16,12 @@ public class CountryServices {
     private CountryRepository countryRepository;
 
     public List<Country> listOfCountries(){
-        return (List<Country>) countryRepository.findAll();
+        return countryRepository.findAll();
     }
 
     public List<Country> sortedListOfCountries(String sortAttribute){
-        //countryRepository.findAll(Sort.by(sortAttribute));
-        return null;
+        List<Country> countries=countryRepository.findAll(Sort.by(Sort.Direction.ASC, sortAttribute));
+        return countries;
     }
 
     public Country getCountry(Long id){
@@ -34,7 +34,14 @@ public class CountryServices {
     }
 
     public Country updateCountry(Country country){
-        return countryRepository.save(country);
+        Country myCountry= countryRepository.findById(country.getId()).orElse(null);
+
+        myCountry.setName(country.getName());
+        myCountry.setArea(country.getArea());
+        myCountry.setCapital(country.getCapital());
+        myCountry.setRegion(country.getRegion());
+        myCountry.setSubRegion(country.getSubRegion());
+        return countryRepository.save(myCountry);
     }
 
     public void deleteCountry(Long id){

@@ -13,7 +13,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @RestController
 @RequestMapping("/api/v1/country")
@@ -28,94 +31,60 @@ public class CountryController {
 
     @GetMapping(value = "", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity CountryList() {
-        Set<Country> listOfCountries = new HashSet<>();
-        Country country1 = new Country.Builder()
-                .id(1L)
-                .name("Mozambique")
-                .capital("Maputo")
-                .region("Africa")
-                .subRegion("Autral Africa")
-                .area(3000000)
-                .build();
-
-        Country country2 = new Country.Builder()
-                .id(2L)
-                .name("Portugal")
-                .capital("Lisboa")
-                .region("Europe")
-                .subRegion("East Europo")
-                .area(30000)
-                .build();
-        listOfCountries.add(country1);
-        listOfCountries.add(country2);
-
-
-        Set<CountryDTO> countryDTOS = new HashSet<>();
-        CountryTransformer mapper = new CountryTransformer();
-        for (Country country : listOfCountries) {
-            countryDTOS.add(mapper.toDto(country));
-        }
-
+        List<Country> countries= countryServices.listOfCountries();
+        List<CountryDTO> countryDTOS=countries.stream().map(transformer::toDto).collect(Collectors.toList());
         return ResponseEntity.status(HttpStatus.OK).body(countryDTOS);
     }
 
-    @GetMapping(value = "", params = {"sortBy=name", "asc=true"}, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity SortedCountryList(@RequestParam("sortBy") String sortBy, @RequestParam(value = "asc", required = false, defaultValue = "true") boolean asc) {
-        LOGGER.info("The request params are: " + "SortBy= " + sortBy + " and asc=" + asc);
+    @GetMapping(value = "", params = "sortBy", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity SortedCountryList(@RequestParam("sortBy") String sortBy) {
+        LOGGER.info("The request params are: " + "SortBy= " + sortBy);
+        List<Country> countries= countryServices.sortedListOfCountries(sortBy);
+        List<CountryDTO> countriesDto= countries.stream().map(transformer::toDto).collect(Collectors.toList());
 
-        Country country1 = new Country.Builder()
-                .id(1L)
-                .name("Mozambique")
-                .capital("Maputo")
-                .region("Africa")
-                .subRegion("Autral Africa")
-                .area(300.000)
-                .build();
-        CountryTransformer mapper = new CountryTransformer();
-        CountryDTO countryDTO = mapper.toDto(country1);
-        return ResponseEntity.status(HttpStatus.OK).body(country1);
+        return ResponseEntity.status(HttpStatus.OK).body(countriesDto);
     }
 
     @GetMapping(value = "/{id:\\d+}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity getCountry(@PathVariable("id") Long id) {
 
-        Country country1 = new Country.Builder()
-                .id(1L)
-                .name("Mozambique")
-                .capital("Maputo")
-                .region("Africa")
-                .subRegion("Autral Africa")
-                .area(300.000)
-                .build();
-        CountryTransformer mapper = new CountryTransformer();
-        CountryDTO countryDTO = mapper.toDto(country1);
+        Country country = countryServices.getCountry(id);
+        if(country==null) return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+
+        CountryDTO countryDTO = transformer.toDto(country);
         return ResponseEntity.status(HttpStatus.OK).body(countryDTO);
     }
 
 
     @DeleteMapping(value = "/{id:\\d+}")
     public ResponseEntity deleteCountry(@PathVariable("id") Long id) {
+        Country country=countryServices.getCountry(id);
+        if(country==null)  return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+
+        countryServices.deleteCountry(id);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
 
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity saveCountry(@RequestBody CountryDTO country) {
-        LOGGER.info("Your country data is"+ country);
+    public ResponseEntity saveCountry(@RequestBody CountryDTO countryDTO) {
+        LOGGER.info("Your country data is"+ countryDTO);
 
-        Country country1 = transformer.toEntity(country);
-        country1.setId(3L);
-        CountryDTO countryDTO = transformer.toDto(country1);
-        return ResponseEntity.status(HttpStatus.CREATED).body(countryDTO);
+        Country country=countryServices.saveCountry(transformer.toEntity(countryDTO));
+
+        CountryDTO myCountryDTO = transformer.toDto(country);
+        return ResponseEntity.status(HttpStatus.CREATED).body(myCountryDTO);
     }
 
 
     @PutMapping(value = "/{id:\\d+}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity updateCountry(@RequestBody CountryDTO countryDTO) {
+    public ResponseEntity updateCountry(@RequestBody CountryDTO countryDTO, @PathVariable("id") Long id)  {
 
-        Country country = transformer.toEntity(countryDTO);
-        country.setId(4L);
-        CountryDTO countryDTO1 = transformer.toDto(country);
-        return ResponseEntity.status(HttpStatus.OK).body(countryDTO1);
+        if(countryServices.getCountry(id)==null) return  ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+
+        Country myCountry = transformer.toEntity(countryDTO);
+        Country country=countryServices.updateCountry(myCountry);
+        CountryDTO myCountryDTO = transformer.toDto(country);
+        return ResponseEntity.status(HttpStatus.OK).body(myCountryDTO);
     }
 }
