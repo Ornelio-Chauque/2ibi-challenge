@@ -1,17 +1,17 @@
 # 2IBI Challenge
-######Database migration : ```Flyway```
-######Multi environment setup
+#####Database migration : ```Flyway```
+#####Multi environment setup
 ```java
 application.properties
 applications-dev.properties //development configurarion
 appplication-prod.properties // production configuratio
 ```
-######Relational database : 
+####Relational database : 
 ```java
 Development : H2
 Production : Postgresql
 ```
-######Cobertura de testes
+####Cobertura de testes
 ```xml
 Jacoco : 
 <plugin>
@@ -92,35 +92,7 @@ status 200
 ```json
 POST /api/v1/country
 ```
-###### 4.1.2 Request Body
-```json
-{
-    "name": "Country 2",
-    "capital": "capital 2",
-    "region": "Region 2",
-    "subRegion": "Sub region 2",
-    "area": "50,000 m2"
-}
-```
-
-#### 4.2 Response
-```json
-{
-    "id": 4,
-    "name": "Country 2",
-    "capital": "capital 2",
-    "region": "Region 2",
-    "subRegion": "Sub region 2",
-    "area": "10,000 m2"
-}
-```
-### 4. Criar um novo pais
-
-#### 4.1 Request
-```json
-POST /api/v1/country
-```
-###### 4.1.2 Request Body
+##### 4.1.2 Request Body
 ```json
 {
     "name": "Country 2",
@@ -149,7 +121,7 @@ POST /api/v1/country
 ```json
 PUT /api/v1/country
 ```
-###### 4.1.2 Request Body
+##### 5.1.2 Request Body
 ```json
 {
   "id": 4,
@@ -161,7 +133,7 @@ PUT /api/v1/country
 }
 ```
 
-#### 4.2 Response
+#### 5.2 Response
 ```json
 {
     "id": 4,
