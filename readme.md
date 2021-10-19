@@ -1,6 +1,6 @@
 # 2IBI Challenge
-#####Database migration : ```Flyway```
-#####Multi environment setup
+####Database migration : ```Flyway```
+####Multi environment setup
 ```java
 application.properties
 applications-dev.properties //development configurarion
@@ -13,7 +13,7 @@ Production : Postgresql
 ```
 ####Cobertura de testes
 ```xml
-Jacoco : 
+Jacoco : 90%
 <plugin>
 <groupId>org.jacoco</groupId>
 <artifactId>jacoco-maven-plugin</artifactId>
