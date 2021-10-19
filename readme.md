@@ -1,17 +1,17 @@
 # 2IBI Challenge
-####Database migration : ```Flyway```
-####Multi environment setup
+#### Database migration : ```Flyway```
+#### Multi environment setup
 ```java
 application.properties
 applications-dev.properties //development configurarion
 appplication-prod.properties // production configuratio
 ```
-####Relational database : 
+#### Relational database : 
 ```java
 Development : H2
 Production : Postgresql
 ```
-####Cobertura de testes
+#### Cobertura de testes
 ```xml
 Jacoco : 90%
 <plugin>
