@@ -1,0 +1,13 @@
+version: "1.0.0"
+services:
+db:
+  restart: always
+  image: postgres
+  container-name: pg
+  ports:
+    - "5432:5432"
+  environment:
+    POSTGRES_PASSWORD: $DB_PASSWORD
+    POSTGRES_USER: $DB_USER
+    POSTGRES_DB: $DB_NAME
+
