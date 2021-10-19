@@ -24,23 +24,28 @@ public class CountryController {
     private final Logger LOGGER = LoggerFactory.getLogger(CountryController.class);
 
     @Autowired
-    CountryServices countryServices;
+    private CountryServices countryServices;
 
     @Autowired
-    CountryTransformer transformer;
+    private CountryTransformer transformer;
 
     @GetMapping(value = "", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity CountryList() {
-        List<Country> countries= countryServices.listOfCountries();
-        List<CountryDTO> countryDTOS=countries.stream().map(transformer::toDto).collect(Collectors.toList());
+        List<Country> countries = countryServices.listOfCountries();
+        List<CountryDTO> countryDTOS = countries.stream().map(transformer::toDto).collect(Collectors.toList());
         return ResponseEntity.status(HttpStatus.OK).body(countryDTOS);
     }
 
     @GetMapping(value = "", params = "sortBy", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity SortedCountryList(@RequestParam("sortBy") String sortBy) {
         LOGGER.info("The request params are: " + "SortBy= " + sortBy);
-        List<Country> countries= countryServices.sortedListOfCountries(sortBy);
-        List<CountryDTO> countriesDto= countries.stream().map(transformer::toDto).collect(Collectors.toList());
+
+        if (!countryServices.getQueryList().contains(sortBy.toLowerCase())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+
+        List<Country> countries = countryServices.sortedListOfCountries(sortBy);
+        List<CountryDTO> countriesDto = countries.stream().map(transformer::toDto).collect(Collectors.toList());
 
         return ResponseEntity.status(HttpStatus.OK).body(countriesDto);
     }
@@ -49,7 +54,7 @@ public class CountryController {
     public ResponseEntity getCountry(@PathVariable("id") Long id) {
 
         Country country = countryServices.getCountry(id);
-        if(country==null) return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        if (country == null) return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
 
         CountryDTO countryDTO = transformer.toDto(country);
         return ResponseEntity.status(HttpStatus.OK).body(countryDTO);
@@ -58,8 +63,8 @@ public class CountryController {
 
     @DeleteMapping(value = "/{id:\\d+}")
     public ResponseEntity deleteCountry(@PathVariable("id") Long id) {
-        Country country=countryServices.getCountry(id);
-        if(country==null)  return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        Country country = countryServices.getCountry(id);
+        if (country == null) return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
 
         countryServices.deleteCountry(id);
         return ResponseEntity.status(HttpStatus.OK).build();
@@ -68,9 +73,9 @@ public class CountryController {
 
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity saveCountry(@RequestBody CountryDTO countryDTO) {
-        LOGGER.info("Your country data is"+ countryDTO);
+        LOGGER.info("Your country data is" + countryDTO);
 
-        Country country=countryServices.saveCountry(transformer.toEntity(countryDTO));
+        Country country = countryServices.saveCountry(transformer.toEntity(countryDTO));
 
         CountryDTO myCountryDTO = transformer.toDto(country);
         return ResponseEntity.status(HttpStatus.CREATED).body(myCountryDTO);
@@ -78,12 +83,12 @@ public class CountryController {
 
 
     @PutMapping(value = "/{id:\\d+}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity updateCountry(@RequestBody CountryDTO countryDTO, @PathVariable("id") Long id)  {
+    public ResponseEntity updateCountry(@RequestBody CountryDTO countryDTO, @PathVariable("id") Long id) {
 
-        if(countryServices.getCountry(id)==null) return  ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        if (countryServices.getCountry(id) == null) return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
 
         Country myCountry = transformer.toEntity(countryDTO);
-        Country country=countryServices.updateCountry(myCountry);
+        Country country = countryServices.updateCountry(myCountry);
         CountryDTO myCountryDTO = transformer.toDto(country);
         return ResponseEntity.status(HttpStatus.OK).body(myCountryDTO);
     }
